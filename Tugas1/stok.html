@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Informasi Stok - SITTA</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="stok">
+<header class="topbar">
+  <span class="brand">SITTA</span>
+  <nav>
+    <a href="stok.html">Informasi Bahan Ajar</a>
+    <a href="tracking.html">Tracking Pengiriman</a>
+    <div class="dropdown">
+      <a>Laporan &#9662;</a>
+      <div class="dropdown-content">
+        <a data-soon>Monitoring Progress DO Bahan Ajar</a>
+        <a data-soon>Rekap Bahan Ajar</a>
+      </div>
+    </div>
+    <a data-soon>Histori Transaksi Bahan Ajar</a>
+  </nav>
+  <a id="logout">Keluar</a>
+</header>
+<main>
+  <div class="card">
+    <h1>Informasi Bahan Ajar</h1>
+    <table>
+      <thead><tr><th>Cover</th><th>Kode Lokasi</th><th>Kode Barang</th><th>Nama Barang</th><th>Jenis</th><th>Edisi</th><th>Stok</th></tr></thead>
+      <tbody id="tbodyStok"></tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h1>Tambah Stok Baru</h1>
+    <label for="inLokasi">Kode Lokasi</label><input id="inLokasi">
+    <label for="inKode">Kode Barang</label><input id="inKode">
+    <label for="inNama">Nama Barang</label><input id="inNama">
+    <label for="inJenis">Jenis Barang</label>
+    <select id="inJenis"><option>BMP</option><option>NonBMP</option></select>
+    <label for="inEdisi">Edisi</label><input id="inEdisi" type="number" min="1">
+    <label for="inStok">Stok</label><input id="inStok" type="number" min="0">
+    <button class="btn" id="btnTambah">Tambah Baris</button>
+  </div>
+</main>
+<script src="js/data.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>

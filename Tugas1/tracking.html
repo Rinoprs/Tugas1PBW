@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tracking Pengiriman - SITTA</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="tracking">
+<header class="topbar">
+  <span class="brand">SITTA</span>
+  <nav>
+    <a href="stok.html">Informasi Bahan Ajar</a>
+    <a href="tracking.html">Tracking Pengiriman</a>
+    <div class="dropdown">
+      <a>Laporan &#9662;</a>
+      <div class="dropdown-content">
+        <a data-soon>Monitoring Progress DO Bahan Ajar</a>
+        <a data-soon>Rekap Bahan Ajar</a>
+      </div>
+    </div>
+    <a data-soon>Histori Transaksi Bahan Ajar</a>
+  </nav>
+  <a id="logout">Keluar</a>
+</header>
+<main>
+  <div class="card">
+    <h1>Tracking Pengiriman</h1>
+    <label for="noDO">Nomor Delivery Order</label>
+    <input type="text" id="noDO" placeholder="contoh: 2023001234">
+    <button class="btn" id="btnCari">Cari</button>
+  </div>
+  <div class="card" id="hasil" style="display:none"></div>
+</main>
+<script src="js/data.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>
