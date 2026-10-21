@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stok Bahan Ajar</title><link rel="stylesheet" href="css/style.css"></head>
+<body>
+<header><h1>SITTA · Bahan Ajar UT</h1><a href="index.html">Beranda</a><a href="stok.html" class="aktif">Stok</a><a href="tracking.html">Tracking DO</a></header>
+<main id="app">
+  <div class="info" v-if="jumlahReorder > 0">{{ notif }}</div>
+
+  <section class="card">
+    <h2>Filter &amp; urutkan</h2>
+    <div class="bar">
+      <label>UT-Daerah
+        <select v-model="filter.upbjj"><option value="">Semua UT-Daerah</option><option v-for="u in upbjjList" :key="u" :value="u">{{ u }}</option></select>
+      </label>
+      <!-- Dependent option: muncul setelah UT-Daerah dipilih -->
+      <label v-if="filter.upbjj">Kategori Mata Kuliah
+        <select v-model="filter.kategori"><option value="">Semua kategori</option><option v-for="k in kategoriOptions" :key="k" :value="k">{{ k }}</option></select>
+      </label>
+      <label class="cek"><input type="checkbox" v-model="filter.reorder" style="min-width:0"> &nbsp;Perlu re-order (stok &lt; safety atau kosong)</label>
+      <label>Urutkan
+        <select v-model="sortBy"><option value="">Tanpa urutan</option><option value="judul">Judul</option><option value="qty">Stok</option><option value="harga">Harga</option></select>
+      </label>
+      <label>Arah
+        <select v-model="sortDir" :disabled="!sortBy"><option value="asc">Naik (A-Z / kecil-besar)</option><option value="desc">Turun</option></select>
+      </label>
+      <button class="sekunder" @click="resetFilter">Reset</button>
+      <button @click="showAdd = !showAdd">{{ showAdd ? 'Tutup formulir' : 'Tambah bahan ajar' }}</button>
+    </div>
+  </section>
+
+  <section class="card" v-show="showAdd">
+    <h2>Tambah bahan ajar baru</h2>
+    <div class="grid">
+      <label>Kode <input v-model.trim="form.kode" placeholder="EKMA4117"><span class="err" v-if="errors.kode">{{ errors.kode }}</span></label>
+      <label>Judul <input v-model.trim="form.judul"><span class="err" v-if="errors.judul">{{ errors.judul }}</span></label>
+      <label>Kategori <select v-model="form.kategori"><option value="">Pilih</option><option v-for="k in kategoriList" :key="k">{{ k }}</option></select><span class="err" v-if="errors.kategori">{{ errors.kategori }}</span></label>
+      <label>UT-Daerah <select v-model="form.upbjj"><option value="">Pilih</option><option v-for="u in upbjjList" :key="u">{{ u }}</option></select><span class="err" v-if="errors.upbjj">{{ errors.upbjj }}</span></label>
+      <label>Lokasi rak <input v-model.trim="form.lokasiRak" placeholder="R1-A3"><span class="err" v-if="errors.lokasiRak">{{ errors.lokasiRak }}</span></label>
+      <label>Harga (Rp) <input type="number" v-model.number="form.harga"><span class="err" v-if="errors.harga">{{ errors.harga }}</span></label>
+      <label>Stok <input type="number" v-model.number="form.qty"><span class="err" v-if="errors.qty">{{ errors.qty }}</span></label>
+      <label>Stok safety <input type="number" v-model.number="form.safety"><span class="err" v-if="errors.safety">{{ errors.safety }}</span></label>
+      <label>Catatan <input v-model="form.catatan"></label>
+    </div>
+    <p><button @click="tambah">Simpan</button></p>
+  </section>
+
+  <section class="card" v-if="editing">
+    <h2>Edit stok: {{ editing.kode }} - {{ editing.judul }}</h2>
+    <div class="grid">
+      <label>Lokasi rak <input v-model.trim="editing.lokasiRak"><span class="err" v-if="editErrors.lokasiRak">{{ editErrors.lokasiRak }}</span></label>
+      <label>Harga (Rp) <input type="number" v-model.number="editing.harga"><span class="err" v-if="editErrors.harga">{{ editErrors.harga }}</span></label>
+      <label>Stok <input type="number" v-model.number="editing.qty"><span class="err" v-if="editErrors.qty">{{ editErrors.qty }}</span></label>
+      <label>Stok safety <input type="number" v-model.number="editing.safety"><span class="err" v-if="editErrors.safety">{{ editErrors.safety }}</span></label>
+    </div>
+    <p><button @click="simpanEdit">Simpan perubahan</button> <button class="sekunder" @click="editing = null">Batal</button></p>
+  </section>
+
+  <section class="card">
+    <h2>Daftar stok ({{ hasilFilter.length }} dari {{ stok.length }})</h2>
+    <div class="tabel-wrap">
+    <table>
+      <thead><tr><th>Kode / Mata Kuliah</th><th>Kategori</th><th>UT-Daerah</th><th>Rak</th><th>Harga</th><th>Stok</th><th>Safety</th><th>Status</th><th>Catatan</th><th>Aksi</th></tr></thead>
+      <tbody>
+        <tr v-for="item in hasilFilter" :key="item.kode+item.upbjj" :class="'baris-' + statusOf(item)">
+          <td><strong>{{ item.kode }}</strong><br>{{ item.judul }}</td>
+          <td>{{ item.kategori }}</td><td>{{ item.upbjj }}</td><td>{{ item.lokasiRak }}</td>
+          <td>{{ rupiah(item.harga) }}</td><td>{{ item.qty }}</td><td>{{ item.safety }}</td>
+          <td>
+            <span v-if="statusOf(item) === 'kosong'" class="kosong">&#9940; Kosong</span>
+            <span v-else-if="statusOf(item) === 'menipis'" class="menipis">&#9888;&#65039; Menipis</span>
+            <span v-else class="aman">&#9989; Aman</span>
+          </td>
+          <td v-html="item.catatanHTML"></td>
+          <td><button class="sekunder" @click="mulaiEdit(item)">Edit</button></td>
+        </tr>
+        <tr v-if="hasilFilter.length === 0"><td colspan="10" class="muted">Tidak ada data yang cocok. Ubah atau reset filter.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+<script src="js/dataBahanAjar.js"></script>
+<script src="js/stok-app.js"></script>
+</body></html>

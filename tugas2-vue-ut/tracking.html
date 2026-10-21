@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tracking Delivery Order</title><link rel="stylesheet" href="css/style.css"></head>
+<body>
+<header><h1>SITTA · Bahan Ajar UT</h1><a href="index.html">Beranda</a><a href="stok.html">Stok</a><a href="tracking.html" class="aktif">Tracking DO</a></header>
+<main id="app">
+  <section class="card">
+    <h2>Lacak Delivery Order</h2>
+    <div class="bar">
+      <label>Nomor DO <input v-model.trim="cari" placeholder="DO2025-0001" @keyup.enter="lacak"></label>
+      <button @click="lacak">Lacak</button>
+    </div>
+    <p class="err" v-if="pesanCari">{{ pesanCari }}</p>
+    <div v-if="hasil" style="margin-top:12px">
+      <p><strong>{{ hasil.no }}</strong> · {{ hasil.nama }} ({{ hasil.nim }})<br>
+        Status: <strong>{{ hasil.status }}</strong> · Ekspedisi: {{ hasil.ekspedisi }} · Kirim: {{ hasil.tanggalKirim }}<br>
+        Paket: {{ hasil.paket }} · Total: {{ rupiah(hasil.total) }}</p>
+      <ul class="timeline"><li v-for="p in hasil.perjalanan" :key="p.waktu"><strong>{{ p.waktu }}</strong><br>{{ p.keterangan }}</li></ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Buat Delivery Order baru</h2>
+    <div class="grid">
+      <label>Nomor DO (otomatis) <input :value="nomorBerikut" readonly></label>
+      <label>NIM <input v-model.trim="form.nim" inputmode="numeric"><span class="err" v-if="errors.nim">{{ errors.nim }}</span></label>
+      <label>Nama <input v-model.trim="form.nama"><span class="err" v-if="errors.nama">{{ errors.nama }}</span></label>
+      <label>Ekspedisi
+        <select v-model="form.ekspedisi"><option value="">Pilih ekspedisi</option><option v-for="p in pengirimanList" :key="p.kode" :value="p.kode">JNE {{ p.nama }}</option></select>
+        <span class="err" v-if="errors.ekspedisi">{{ errors.ekspedisi }}</span></label>
+      <label>Paket bahan ajar
+        <select v-model="form.paket"><option value="">Pilih paket</option><option v-for="p in paketList" :key="p.kode" :value="p.kode">{{ p.kode }} - {{ p.nama }}</option></select>
+        <span class="err" v-if="errors.paket">{{ errors.paket }}</span></label>
+      <label>Tanggal kirim <input type="date" v-model="form.tanggalKirim"><span class="err" v-if="errors.tanggalKirim">{{ errors.tanggalKirim }}</span></label>
+      <label>Total harga <input :value="rupiah(totalHarga)" readonly></label>
+    </div>
+    <div class="info" v-if="paketTerpilih" style="margin-top:12px">
+      <strong>Isi {{ paketTerpilih.nama }}:</strong>
+      <ul><li v-for="k in isiPaket" :key="k.kode">{{ k.kode }} - {{ k.judul }}</li></ul>
+    </div>
+    <p><button @click="tambah">Simpan DO</button> <span class="aman" v-if="sukses">{{ sukses }}</span></p>
+  </section>
+
+  <section class="card">
+    <h2>Daftar DO ({{ daftarDO.length }})</h2>
+    <div class="tabel-wrap"><table>
+      <thead><tr><th>No DO</th><th>Nama</th><th>Paket</th><th>Total</th><th>Status</th><th></th></tr></thead>
+      <tbody><tr v-for="d in daftarDO" :key="d.no">
+        <td>{{ d.no }}</td><td>{{ d.nama }}</td><td>{{ d.paket }}</td><td>{{ rupiah(d.total) }}</td><td>{{ d.status }}</td>
+        <td><button class="sekunder" @click="cari = d.no; lacak()">Lihat</button></td></tr></tbody>
+    </table></div>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+<script src="js/dataBahanAjar.js"></script>
+<script src="js/tracking-app.js"></script>
+</body></html>
